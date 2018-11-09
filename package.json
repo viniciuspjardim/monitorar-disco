@@ -1,0 +1,31 @@
+{
+  "name": "monitorar-disco",
+  "version": "0.1.0",
+  "description": "Monitora o disco e libera espaço quando necessário",
+  "main": "main.js",
+  "scripts": {
+    "test": "teste"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/viniciuspjardim/monitorar-disco.git"
+  },
+  "keywords": [
+    "Disco",
+    "Ergon"
+  ],
+  "author": "Vinícius P. Jardim",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/viniciuspjardim/monitorar-disco/issues"
+  },
+  "homepage": "https://github.com/viniciuspjardim/monitorar-disco#readme",
+  "dependencies": {
+    "diskspace": "^2.0.0",
+    "iconv-lite": "^0.4.24",
+    "rimraf": "^2.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.2"
+  }
+}

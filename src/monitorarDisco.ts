@@ -1,8 +1,11 @@
 'use strict';
 
-import diskspace = require('diskspace');
+import cp = require('child_process');
 import fs = require('fs');
 import iconv = require('iconv-lite');
+import path = require('path');
+import rimraf = require('rimraf');
+
 
 export interface Espaco {
     usado: number;
@@ -25,7 +28,7 @@ export class Ranque {
     }
 }
 
-function compararRanque(r1: Ranque, r2: Ranque): number {
+export function compararRanque(r1: Ranque, r2: Ranque): number {
     return r1.importancia - r2.importancia;
 }
 
@@ -42,22 +45,22 @@ export class MonitorarDisco {
     private logStr: string = '';
 
     public static main(): void {
+
         let monitor: MonitorarDisco = new MonitorarDisco();
-        monitor.init();
-        monitor.check();
-        // monitor.teste();
-    }
-
-    public init(): void {
-
         let hoje  = new Date();
-        this.log(`================ ${hoje.getDate()}/${hoje.getMonth()+1}/${hoje.getFullYear()} às ${
+
+        monitor.log(`================ ${hoje.getDate()}/${hoje.getMonth()+1}/${hoje.getFullYear()} às ${
             hoje.getHours()}:${hoje.getMinutes()}:${hoje.getSeconds()} ================`);
 
+        monitor.carregarConfig();
+        monitor.executar();
+    }
+
+    public carregarConfig(): void {
         try {
             const str: string = iconv.decode(fs.readFileSync('config.json'), 'utf8');
             this.config = JSON.parse(str);
-            this.log('Config.json:');
+            this.log('config.json:');
             this.log(str + '\n');
         }
         catch(e) {
@@ -65,44 +68,24 @@ export class MonitorarDisco {
         }
     }
 
-    private check(): void {
+    private executar(): void {
 
-        diskspace.check(this.config.unidade, (err, result) => {
-            if(err !== null) {
-                this.erro(2, err);
-            }
+        this.calcularEspaco();
+        
+        if(this.espaco.usado < this.config.espacoMinimo) {
 
-            this.espaco = {
-                usado: result.used / MonitorarDisco.GB,
-                livre: result.free / MonitorarDisco.GB,
-                total: result.total / MonitorarDisco.GB
-            };
-            this.log('Usado: ' + this.espaco.usado.toFixed(2) + '; Livre: ' + this.espaco.livre.toFixed(2) + '; Total: ' + this.espaco.total.toFixed(2) + '\n');
+            this.log('\n==== Liberando espaço ====\n');
+            this.rank();
 
-            if(this.espaco.usado < this.config.espacoMinimo) {
-                this.log('==== Liberando espaço ====');
-                this.rank();
-                // Após ranquear ordena por importância
-                this.ranque.sort(compararRanque);
-                this.deleteExec();
-                this.salvarLog();
-            }
-            else {
-                this.log('Espaço Ok!');
-            }
-        });
-    }
-
-    /** Percorre o ranque e deleta as pastas de execução com menos importância */
-    private deleteExec(): void {
-        try {
-            for(let i in this.ranque) {
-                this.log(this.ranque[i].toString());
-            }
+            // Após ranquear ordena por importância
+            this.ranque.sort(compararRanque);
+            this.deleteExec();
         }
-        catch(e) {
-            this.erro(3, e);
+        else {
+            this.log('Espaço Ok!');
         }
+
+        this.salvarLog();
     }
 
     /** Percorrendo as pastas de execução da folha e ranqueando por importância */
@@ -212,6 +195,66 @@ export class MonitorarDisco {
         }
         catch(e) {
             this.erro(4, e);
+        }
+    }
+
+    /** Percorre o ranque e deleta as pastas de execução com menos importância */
+    private deleteExec(): void {
+        try {
+            for(let i in this.ranque) {
+
+                this.calcularEspaco();
+
+                // Espaço já é suficiente
+                if(this.espaco.livre >= this.config.espacoMinimo) {
+                    this.log('Espaço já é suficiente. Fim')
+                    return;
+                }
+
+                // Saindo caso a importância seja acima de 400 pois pode ser uma folha
+                // em execução no momento (muito recente)
+                if(this.ranque[i].importancia > 400) {
+                    this.log('Importância > 400. Fim')
+                    return;
+                }
+
+                // Remove a pasta de execução
+                rimraf.sync(this.ranque[i].caminho);
+                this.log(`${this.ranque[i].toString()} removido\n`);
+            }
+            this.log(`Todas as pastas de execução foram removidas. Fim\n`);
+        }
+        catch(e) {
+            this.erro(3, e);
+        }
+    }
+
+    private calcularEspaco(): void {
+        try {
+            let buffer: any = cp.execFileSync('drivespace.exe', ['drive-' + this.config.unidade]);
+
+            if(buffer instanceof Buffer) {
+                let info: string[] =  iconv.decode(buffer, 'utf8').trim().split(',');
+                this.espaco = {
+                    usado: (parseInt(info[0]) - parseInt(info[1])) / MonitorarDisco.GB,
+                    livre: parseInt(info[1]) / MonitorarDisco.GB,
+                    total: parseInt(info[0]) / MonitorarDisco.GB
+                };
+
+                if (info[2] === 'NOTFOUND') {
+					throw new Error('Drive não encontrado');
+				}
+
+                this.log('Usado: ' + this.espaco.usado.toFixed(2) +
+                    '; Livre: ' + this.espaco.livre.toFixed(2) +
+                    '; Total: ' + this.espaco.total.toFixed(2));
+            }
+            else {
+                this.erro(5, 'Não é uma instância de Buffer');
+            }
+        }
+        catch(e) {
+            this.erro(6, e);
         }
     }
 

@@ -8,7 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "Run",
-            "program": "${workspaceFolder}/built/main.js",
+            "program": "${workspaceFolder}/built/monitorarDisco.js",
             "preLaunchTask": "tsc",
             "console": "internalConsole",
             "internalConsoleOptions": "openOnSessionStart"

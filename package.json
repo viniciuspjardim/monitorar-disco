@@ -21,7 +21,6 @@
   },
   "homepage": "https://github.com/viniciuspjardim/monitorar-disco#readme",
   "dependencies": {
-    "diskspace": "^2.0.0",
     "iconv-lite": "^0.4.24",
     "rimraf": "^2.6.2"
   },

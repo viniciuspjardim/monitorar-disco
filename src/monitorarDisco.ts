@@ -71,8 +71,8 @@ export class MonitorarDisco {
     private executar(): void {
 
         this.calcularEspaco();
-        
-        if(this.espaco.usado < this.config.espacoMinimo) {
+
+        if(this.espaco.livre < this.config.espacoMinimo) {
 
             this.log('\n==== Liberando espaço ====\n');
             this.rank();
@@ -108,7 +108,7 @@ export class MonitorarDisco {
 
                 let result1: RegExpExecArray | null = this.rgxNivel1.exec(arq1);
                 this.rgxNivel1.lastIndex = 0;
-                
+
                 // Pastas de execução de producao tem +100 de importância
                 if(result1 !== null && result1[1] === 'producao') {
                     rank1 = 100;
@@ -135,7 +135,7 @@ export class MonitorarDisco {
                         rank2 = 25;
                     }
                     this.log(`    ${arq2} -> rank = ${rank2}`);
-    
+
                     // Lendo pastas dentro de (...)/execucao/Emp_01_TOCANTINS/Destino_delta_SRVFVJ/VJ/
                     let arquivos3: string[] = fs.readdirSync(path2);
 
@@ -156,14 +156,13 @@ export class MonitorarDisco {
                             let arq4: string = arquivos4[l];
                             let path4: string = `${this.config.pastaExecucao}${arq1}/${arq2}/${arq3}/${arq4}`;
                             let stat4: fs.Stats = fs.lstatSync(path4);
-                            
 
                             let result4: RegExpExecArray | null = this.rgxNivel4.exec(arq4);
                             this.rgxNivel4.lastIndex = 0;
 
                             if(stat4.isFile() && result4 !== null) {
                                 let dias = Math.abs(hoje.getTime() - stat4.mtime.getTime()) / 1000 / 3600 / 24;
-                                
+
                                 // Arquivos de menos de 5 dias tem +500
                                 if(dias < 5) {
                                     rank3 = 500;
@@ -264,6 +263,12 @@ export class MonitorarDisco {
     }
 
     private salvarLog() {
+
+        let hoje = new Date();
+
+        this.log(`\nFim do processo. ${hoje.getDate()}/${hoje.getMonth()+1}/${hoje.getFullYear()} às ${
+            hoje.getHours()}:${hoje.getMinutes()}:${hoje.getSeconds()}`);
+
         try {
             fs.appendFileSync('log.txt', this.logStr + '\n\n\n\n');
         }

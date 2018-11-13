@@ -18,9 +18,9 @@ O campo `espacoMinimo` é em GB.
 ## Como Configurar
 O computador precisa ter instalado o .NET 3.5. Para instalar este recurso no
 Windows Server faça o seguinte:
-1. Abra o `Gerenciador de Servidores` e vá em `Recursos` > `Adicionar Recursos`.
+1. Abra o `Gerenciador de Servidores` e vá em `Recursos` > `Adicionar Recursos`;
 2. Selecione `Recursos do .NET Framework 3.5.1` e clique em `Próximo >` depois em
-`Instalar`
+`Instalar`.
 
 Baixe e instale também o Node.js, que executará o script.
 

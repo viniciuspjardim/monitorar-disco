@@ -16,5 +16,19 @@ menos importantes até atingir o espaço mínimo.
 O campo `espacoMinimo` é em GB.
 
 ## Como Configurar
-Instalar o Node.js e configurar o Agendador de Tarefas do Windows para executar
-o script todo dia.
+O computador precisa ter instalado o .NET 3.5. Para instalar este recurso no
+Windows Server faça o seguinte:
+1. Abra o `Gerenciador de Servidores` e vá em `Recursos` > `Adicionar Recursos`.
+2. Selecione `Recursos do .NET Framework 3.5.1` e clique em `Próximo >` depois em
+`Instalar`
+
+Baixe e instale também o Node.js, que executará o script.
+
+Para executar Monitorar Disco manualmente, abra o terminal na pasta de instalação
+e execute o comando
+```
+node monitorarDisco.js
+```
+
+Para executar automaticamente todo dia, configure o Agendador de
+Tarefas do Windows para executar o script.

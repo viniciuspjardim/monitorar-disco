@@ -60,7 +60,7 @@ export class MonitorarDisco {
         try {
             const str: string = iconv.decode(fs.readFileSync('config.json'), 'utf8');
             this.config = JSON.parse(str);
-            this.log('config.json:');
+            this.log('\nconfig.json:');
             this.log(str + '\n');
         }
         catch(e) {
@@ -97,6 +97,11 @@ export class MonitorarDisco {
             // Lendo pastas dentro de (...)/execucao/Emp_01_TOCANTINS/
             let arquivos1: string[] = fs.readdirSync(this.config.pastaExecucao);
 
+            // Importância inicial para todas as pastas de execução = 100
+            let rank0 = 100;
+
+            this.log(`rank inicial/max = ${rank0}. -1 por dia desde a execução...`);
+
             for(let i in arquivos1) {
 
                 let arq1: string = arquivos1[i];
@@ -109,9 +114,9 @@ export class MonitorarDisco {
                 let result1: RegExpExecArray | null = this.rgxNivel1.exec(arq1);
                 this.rgxNivel1.lastIndex = 0;
 
-                // Pastas de execução de producao tem +100 de importância
-                if(result1 !== null && result1[1] === 'producao') {
-                    rank1 = 100;
+                // Pastas de execução que não são producao tem -10 de importância
+                if(result1 !== null && result1[1].toLocaleLowerCase() !== 'producao') {
+                    rank1 = -10;
                 }
                 this.log(`${arq1} -> rank = ${rank1}`);
 
@@ -127,12 +132,15 @@ export class MonitorarDisco {
 
                     if(!stat2.isDirectory()) continue;
 
-                    // REAL +50 e ncREAL +25 de importância
-                    if(arq2 === 'REAL') {
-                        rank2 = 50;
+                    // REAL 0; ncREAL -1 e outros -5 de importância
+                    if(arq2.toLocaleLowerCase() === 'real') {
+                        rank2 = 0;
                     }
-                    else if(arq2 === 'ncREAL') {
-                        rank2 = 25;
+                    else if(arq2.toLocaleLowerCase() === 'ncreal') {
+                        rank2 = -1;
+                    }
+                    else {
+                        rank2 = -5;
                     }
                     this.log(`    ${arq2} -> rank = ${rank2}`);
 
@@ -163,18 +171,7 @@ export class MonitorarDisco {
                             if(stat4.isFile() && result4 !== null) {
                                 let dias = Math.abs(hoje.getTime() - stat4.mtime.getTime()) / 1000 / 3600 / 24;
 
-                                // Arquivos de menos de 5 dias tem +500
-                                if(dias < 5) {
-                                    rank3 = 500;
-                                }
-                                // Mais de 30 tem imporância negativa
-                                else if(dias > 30) {
-                                    rank3 = -dias / 100;
-                                }
-                                // De 5 a 30 usa a formula a seguir
-                                else {
-                                    rank3 = 100 - (dias * 3);
-                                }
+                                rank3 = -dias;
 
                                 // this.log(`            ${arq4} -> d = ${dias}, r = ${rank3}`);
                                 break;
@@ -183,7 +180,7 @@ export class MonitorarDisco {
 
                         let rank: Ranque = new Ranque();
                         rank.caminho = path3;
-                        rank.importancia = rank1 + rank2 + rank3;
+                        rank.importancia = rank0 + rank1 + rank2 + rank3;
 
                         this.log(`        ${arq3} -> r = ${rank.importancia.toFixed(3)}`);
                         this.ranque.push(rank);
@@ -210,10 +207,10 @@ export class MonitorarDisco {
                     return;
                 }
 
-                // Saindo caso a importância seja acima de 400 pois pode ser uma folha
+                // Saindo caso a importância seja acima de 97 pois pode ser uma folha
                 // em execução no momento (muito recente)
-                if(this.ranque[i].importancia > 400) {
-                    this.log('Importância > 400. Fim')
+                if(this.ranque[i].importancia > 94) {
+                    this.log('Importância > 94. As próximas pastas não serão removidas. Fim')
                     return;
                 }
 

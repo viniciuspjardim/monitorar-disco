@@ -4,6 +4,9 @@ Caso o espaço em disco seja menor do que o valor informado no arquivo `config.j
 o programa ranqueia as pastas de execução por ordem de importância e remove as
 menos importantes até atingir o espaço mínimo.
 
+O log da execução do programa é gravado na pasta de instalação no arquivo
+`log.txt`.
+
 ## Arquivo `config.json`
 
 ```json
@@ -24,11 +27,15 @@ Windows Server faça o seguinte:
 
 Baixe e instale também o Node.js, que executará o script.
 
+A última versão de Monitorar Disco está disponível [em seu repositório no GitHub](https://github.com/viniciuspjardim/monitorar-disco/releases).
+Baixe e extraia o arquivo zip em uma pasta que será considerada a pasta de
+instalação.
+
 Para executar Monitorar Disco manualmente, abra o terminal na pasta de instalação
 e execute o comando
 ```
 node monitorarDisco.js
 ```
 
-Para executar automaticamente todo dia, configure o Agendador de
-Tarefas do Windows para executar o script.
+É possível automatizar o processo configurando o Agendador de Tarefas do Windows
+para executar o script de forma periódica (todo dia, por exemplo).

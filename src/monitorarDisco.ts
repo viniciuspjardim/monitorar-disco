@@ -49,7 +49,7 @@ export class MonitorarDisco {
         let monitor: MonitorarDisco = new MonitorarDisco();
         let hoje  = new Date();
 
-        monitor.log(`================ ${hoje.getDate()}/${hoje.getMonth()+1}/${hoje.getFullYear()} às ${
+        monitor.log(`================ Monitorar Disco v0.2.0 - Execução em ${hoje.getDate()}/${hoje.getMonth()+1}/${hoje.getFullYear()} às ${
             hoje.getHours()}:${hoje.getMinutes()}:${hoje.getSeconds()} ================`);
 
         monitor.carregarConfig();
@@ -266,8 +266,14 @@ export class MonitorarDisco {
         this.log(`\nFim do processo. ${hoje.getDate()}/${hoje.getMonth()+1}/${hoje.getFullYear()} às ${
             hoje.getHours()}:${hoje.getMinutes()}:${hoje.getSeconds()}`);
 
+        this.logStr += '\n\n\n\n';
+        
+        // Adequando log para Windows: substituindo \n por \r\n e salvando no formato Windows-1252
+        this.logStr = this.logStr.replace(/\r\n/g, '\n');
+        this.logStr = this.logStr.replace(/\n/g, '\r\n');
+
         try {
-            fs.appendFileSync('log.txt', this.logStr + '\n\n\n\n');
+            fs.appendFileSync('log.txt', iconv.encode(this.logStr, 'windows1252'));
         }
         catch(e) {
             console.log(`Erro 99: não foi possível gravar log |||| ${e}`);

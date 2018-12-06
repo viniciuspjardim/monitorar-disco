@@ -17,6 +17,7 @@ export interface Config {
     unidade: string;
     pastaExecucao: string;
     espacoMinimo: number;
+    importanciaMaxima: number;
 }
 
 export class Ranque {
@@ -49,7 +50,7 @@ export class MonitorarDisco {
         let monitor: MonitorarDisco = new MonitorarDisco();
         let hoje  = new Date();
 
-        monitor.log(`================ Monitorar Disco v0.2.0 - Execução em ${hoje.getDate()}/${hoje.getMonth()+1}/${hoje.getFullYear()} às ${
+        monitor.log(`================ Monitorar Disco v0.3.0 - Execução em ${hoje.getDate()}/${hoje.getMonth()+1}/${hoje.getFullYear()} às ${
             hoje.getHours()}:${hoje.getMinutes()}:${hoje.getSeconds()} ================`);
 
         monitor.carregarConfig();
@@ -114,7 +115,7 @@ export class MonitorarDisco {
                 let result1: RegExpExecArray | null = this.rgxNivel1.exec(arq1);
                 this.rgxNivel1.lastIndex = 0;
 
-                // Pastas de execução que não são producao tem -10 de importância
+                // Penalidades: pastas de execução que não são producao tem -10 de importância
                 if(result1 !== null && result1[1].toLocaleLowerCase() !== 'producao') {
                     rank1 = -10;
                 }
@@ -132,7 +133,7 @@ export class MonitorarDisco {
 
                     if(!stat2.isDirectory()) continue;
 
-                    // REAL 0; ncREAL -1 e outros -5 de importância
+                    // Penalidades: REAL 0; ncREAL -1 e outros -5 de importância
                     if(arq2.toLocaleLowerCase() === 'real') {
                         rank2 = 0;
                     }
@@ -207,10 +208,10 @@ export class MonitorarDisco {
                     return;
                 }
 
-                // Saindo caso a importância seja acima de 97 pois pode ser uma folha
-                // em execução no momento (muito recente)
-                if(this.ranque[i].importancia > 94) {
-                    this.log('Importância > 94. As próximas pastas não serão removidas. Fim')
+                // Saindo caso a importância seja acima de config.importanciaMaxima pois
+                // pode ser uma folha em execução no momento (muito recente)
+                if(this.ranque[i].importancia > this.config.importanciaMaxima) {
+                    this.log(`Importância > ${this.config.importanciaMaxima}. As próximas pastas não serão removidas. Fim`)
                     return;
                 }
 

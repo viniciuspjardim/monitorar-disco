@@ -13,10 +13,15 @@ O log da execução do programa é gravado na pasta de instalação no arquivo
 {
     "unidade": "C",
     "pastaExecucao": "C:/folha/execucao/Emp_01_XYZ/",
-    "espacoMinimo": 25
+    "espacoMinimo": 25,
+    "importanciaMaxima": 94
 }
 ```
-O campo `espacoMinimo` é em GB.
+* O campo `espacoMinimo` é em GB;
+* A importância é calculada com a formula
+`100 - <número de dias da pasta de execução> - <penalidades>`;
+* Ver penalidades no código;
+* Pastas de execução com valor maior que `importanciaMaxima` não serão excluídas.
 
 ## Como Configurar
 O computador precisa ter instalado o .NET 3.5. Para instalar este recurso no

@@ -50,7 +50,7 @@ export class MonitorarDisco {
         let monitor: MonitorarDisco = new MonitorarDisco();
         let hoje  = new Date();
 
-        monitor.log(`================ Monitorar Disco v0.3.0 - Execução em ${hoje.getDate()}/${hoje.getMonth()+1}/${hoje.getFullYear()} às ${
+        monitor.log(`================ Monitorar Disco v0.3.1 - Execução em ${hoje.getDate()}/${hoje.getMonth()+1}/${hoje.getFullYear()} às ${
             hoje.getHours()}:${hoje.getMinutes()}:${hoje.getSeconds()} ================`);
 
         monitor.carregarConfig();

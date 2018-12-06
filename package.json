@@ -1,6 +1,6 @@
 {
   "name": "monitorar-disco",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Monitora o disco e libera espaço quando necessário",
   "main": "monitorarDisco.ts",
   "scripts": {
